@@ -42,6 +42,7 @@ class Product(Base):
 
     category = relationship("Category", back_populates="products")
     cart_items = relationship("CartItem", back_populates="item")
+    wish_list = relationship("WishlistItem", back_populates="item")
 
     images = relationship("ProductImage", back_populates="product")
 
@@ -58,6 +59,20 @@ class CartItem(Base):
     item_id = Column(Integer, ForeignKey("products.id"))
 
     item = relationship("Product", back_populates="cart_items")
+
+    def __repr__(self):
+        return str(self.id) + "-" + "cart_item"
+    
+
+class WishlistItem(Base):
+    __tablename__ = "wishlist_item"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String(16))
+    quantity = Column(Integer, default=0)
+    item_id = Column(Integer, ForeignKey("products.id"))
+
+    item = relationship("Product", back_populates="wish_list")
 
     def __repr__(self):
         return str(self.id) + "-" + "cart_item"

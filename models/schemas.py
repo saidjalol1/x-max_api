@@ -2,6 +2,15 @@ from pydantic import BaseModel
 from typing import Optional
 from typing import List
 
+
+class CategoryOut(BaseModel):
+    id: int
+    name : str
+
+    class Config:
+        orm_mode = True
+
+
 class ProductImage(BaseModel):
     id: int
     filename: str
@@ -29,6 +38,7 @@ class ProductOut(BaseModel):
     amount: int
     description: str
     images : List[ProductImage]
+    category: CategoryOut
 
     class Config:
         orm_mode = True
@@ -41,3 +51,16 @@ class CreateCategory(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CartItemOut(BaseModel):
+    id : int
+    token: str
+    quantity : int
+    item : ProductOut
+
+class WishlistItemOut(BaseModel):
+    id : int
+    token: str
+    quantity : int
+    item : ProductOut
