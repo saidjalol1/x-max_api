@@ -18,7 +18,7 @@ route = APIRouter(
 )
 
 
-@route.post("/add")
+@route.post("/add", response_model= CategoryOut)
 async def create_category(
     category : CreateCategory,
     api_key: str = Depends(verify_api_key),
@@ -28,7 +28,10 @@ async def create_category(
     db.add(category)
     db.commit()
     db.refresh(category)
-    return {"message":"Seccesful"}
+    category = {
+        "category": category
+    }
+    return category
     
 
 @route.get("/all_categories",response_model=List[CategoryOut])
@@ -47,11 +50,14 @@ async def update_category(
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
     ):
-    categories = db.query(Category).filter(Category.id == id).first()
-    categories.name = name
+    category = db.query(Category).filter(Category.id == id).first()
+    category.name = name
     db.commit()
-    db.refresh(categories)
-    return {"message":"Updated successfully"}
+    db.refresh(category)
+    category = {
+        "category": category
+    }
+    return category
 
 
 @route.delete("/delete/{id}")

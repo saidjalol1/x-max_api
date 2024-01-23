@@ -22,7 +22,10 @@ async def wishlist(
     db : Session = Depends(get_db)
 ):
     cart = db.query(WishlistItem).options(joinedload(WishlistItem.item)).filter(WishlistItem.token==user_token).all()
-    return cart
+    cart_items = {
+        "items": cart
+    }
+    return cart_items
 
 
 @route.post("/add_to_cart/{id}")
