@@ -59,7 +59,7 @@ async def remove_from_cart(
     db : Session = Depends(get_db)
 ):
     cart_item = db.query(CartItem).filter(CartItem.token == user_token, CartItem.id == id).first()
-    if cart_item:
+    if cart_item.quantity > quantity:
         cart_item.quantity -= quantity
         db.commit()
     elif cart_item.quantity == 0:
@@ -67,7 +67,7 @@ async def remove_from_cart(
         db.commit()
     else:
         pass
-    return {"messages":"Product added to the cart successfully!!!"}
+    return {"messages":"Product removed to the cart successfully!!!"}
     
 
 

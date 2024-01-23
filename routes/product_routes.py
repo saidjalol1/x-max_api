@@ -65,13 +65,13 @@ async def one_product(
     return respons
 
 
-@products.get("/all_products", response_model=List[ProductOut])
-async def fetch_all(
-    api_key: str = Depends(verify_api_key),
-    db: Session = Depends(get_db)
-):
-    products = db.query(Product).options(joinedload(Product.images)).options(joinedload(Product.category)).all()
-    return products
+# @products.get("/all_products", response_model=List[ProductOut])
+# async def fetch_all(
+#     api_key: str = Depends(verify_api_key),
+#     db: Session = Depends(get_db)
+# ):
+#     products = db.query(Product).options(joinedload(Product.images)).options(joinedload(Product.category)).all()
+#     return products
 
 
 @products.patch("/update_products/{id}")

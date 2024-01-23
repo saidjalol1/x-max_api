@@ -21,10 +21,10 @@ async def index(
     db: Session = Depends(get_db),
 ):
     if name:
-        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).filter(models.Product.name.contains(name))
+        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).filter(models.Product.name.contains(name)).all()
         categories = db.query(models.Category).all()
     else:
-        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).filter(models.Category)
+        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).all()
         categories = db.query(models.Category).all()
     respons = {
         "products": products,
