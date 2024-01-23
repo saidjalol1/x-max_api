@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session, joinedload
 from utils import verify_api_key, get_or_create_user_token
 from config import get_db
 from models import models, schemas
 
-from typing import List, Optional, Query
+from typing import List, Optional
 
 
 main_routes = APIRouter(
