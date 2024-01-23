@@ -22,14 +22,7 @@ async def cart_page(
     db : Session = Depends(get_db)
 ):
     cart = db.query(CartItem).options(joinedload(CartItem.item)).filter(CartItem.token==user_token, CartItem.quantity > 0).all()
-    cart_items = None
-    if len(cart) > 0:
-        cart_items = {
-            "cart_items":cart
-            }
-        return cart_items
-    else:
-        return {"message":"There is nothing in the cart"}
+    return cart
 
 
 @route.post("/add_to_cart/{id}")
