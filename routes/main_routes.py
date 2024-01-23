@@ -18,9 +18,13 @@ main_routes = APIRouter(
 async def index(
     api_key : str = Depends(verify_api_key),
     db: Session = Depends(get_db),
+    name: str = None,
 ):
-    products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).all()
-    categories = db.query(models.Category).all()
+    if name == None:
+        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).all()
+        categories = db.query(models.Category).all()
+    else:
+        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).filter(models.Category)
     respons = {
         "products": products,
         "categories": categories

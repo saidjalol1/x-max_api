@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 
 from models.models import Category
-from models.schemas import CreateCategory
+from models.schemas import CreateCategory, CategoryOut
 from models.models import *
 
 from sqlalchemy.orm import Session
-
+from typing import List
 
 from config import get_db
 from utils import verify_api_key
@@ -31,7 +31,7 @@ async def create_category(
     return {"message":"Seccesful"}
     
 
-@route.get("/all_categories")
+@route.get("/all_categories",response_model=List[CategoryOut])
 async def fetch_all(
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)

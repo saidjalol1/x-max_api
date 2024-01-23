@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form, Request
 from sqlalchemy.orm import Session, joinedload
 from utils import verify_api_key
 from config import get_db
 from models.models import *
 
+from fastapi.responses import FileResponse
 from typing import List, Annotated
 
 from models.schemas import CreateProduct, ProductOut
@@ -15,6 +16,8 @@ products = APIRouter(
 )
 
 
+url = "https://9db3f01f388a33.lhr.life/images/"
+
 @products.post("/add")
 async def create_product(
     name: Annotated[str, Form(...)],
@@ -24,7 +27,7 @@ async def create_product(
     description: Annotated[str, Form(...)],
     images: List[UploadFile] = File(...),
     api_key : str = Depends(verify_api_key),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
     ):
 
     db_product = Product(
@@ -37,17 +40,29 @@ async def create_product(
     db.add(db_product)
     db.commit()
     db.refresh(db_product)
-
     for i in images:
-        with open(f"product_images/{i.filename}", "wb") as image_file:
+        counter = 0
+        with open(f"product_images/{i.name}", "wb") as image_file:
             image_file.write(await i.read())
-        db_image = ProductImage(filename = i.filename, product_id=db_product.id)
+        db_image = ProductImage(filename = url + i.filename, product_id=db_product.id)
         db.add(db_image)
 
         db.commit()
         db.refresh(db_image)
 
     return {"messages": "Seccessfully Created"}
+
+@products.get("/{id}")
+async def one_product(
+    id : int,
+    api_key: str = Depends(verify_api_key),
+    db : Session = Depends(get_db)
+):
+    products = db.query(Product).options(joinedload(Product.images)).filter_by(id=id).first()
+    respons = {
+        "product":products
+    }
+    return respons
 
 
 @products.get("/all_products", response_model=List[ProductOut])
