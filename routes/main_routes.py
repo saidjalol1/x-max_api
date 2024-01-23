@@ -16,19 +16,28 @@ main_routes = APIRouter(
 
 @main_routes.get("/")
 async def index(
-    name: str = Query(None, alias="name"),
-    api_key : str = Depends(verify_api_key),
+    id: Optional[int] = None,
+    name: Optional[str] = None,
+    api_key: str = Depends(verify_api_key),
     db: Session = Depends(get_db),
 ):
+    query = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images))
+
     if name:
-        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).filter(models.Product.name.contains(name)).all()
-        categories = db.query(models.Category).all()
-    else:
-        products = db.query(models.Product).options(joinedload(models.Product.category)).options(joinedload(models.Product.images)).all()
-        categories = db.query(models.Category).all()
-    respons = {
+        query = query.filter(models.Product.name.contains(name))
+    if id:
+        try:
+            query = query.filter(models.Product.category_id == id)
+        except Exception as e:
+            query = "Mahsulot lar mavjud emas"
+            
+    products = query.all()
+    categories = db.query(models.Category).all()
+
+    response = {
         "products": products,
         "categories": categories
     }
-    return respons
+
+    return response
 

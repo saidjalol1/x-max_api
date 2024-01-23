@@ -21,71 +21,59 @@ async def wishlist(
     user_token: str = Depends(get_or_create_user_token),
     db : Session = Depends(get_db)
 ):
-    cart = db.query(WishlistItem).options(joinedload(WishlistItem.item)).filter(WishlistItem.token==user_token).all()
+    cart = db.query(WishlistItem).options(joinedload(WishlistItem.item)).filter(WishlistItem.token==user_token, WishlistItem.quantity > 0).all()
     return cart
 
 
-@route.post("/add_to_cart/{product_id}")
+@route.post("/add_to_whishlist/{product_id}")
 async def add_to_cart(
     id : int,
-    quantity : Optional[int],
     user_token : str =Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
-    if quantity:
         try:
             cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == id).first()
-            cart_item.quantity += quantity
+            cart_item.quantity += 1
             db.commit()
+            cart_item = {
+                "item": cart_item
+            }
+            return cart_item
         except Exception as e:
             new_item = WishlistItem(
                 token = user_token,
-                quantity = quantity,
+                quantity = 1,
                 item_id = id,
             )
             db.add(new_item)
             db.commit()
             db.refresh(new_item)
-        else:
-            try:
-                cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == id).first()
-                cart_item.quantity += 1
-                db.commit()
-            except Exception as e:
-                new_item = WishlistItem(
-                    token = user_token,
-                    quantity = quantity,
-                    item_id = id,
-                )
-                db.add(new_item)
-                db.commit()
-                db.refresh(new_item)
-
-    return {"messages":"Product added to the wishlist successfully!!!"}
+            item = {
+                "item": new_item
+            }
+            return item
 
 
-@route.post("/remove_from_cart/{product_id}")
+@route.post("/remove_from_whishlist/{product_id}")
 async def remove_from_cart(
     id : int,
-    quantity : int,
     user_token : str = Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
-    cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == id).first()
-    if cart_item.quantity >= quantity:
-        cart_item.quantity -= quantity
+    try:
+        cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == id).first()
+        cart_item.quantity -= 1
         db.commit()
         if cart_item.quantity == 0:
             db.delete(cart_item)
-            db.commit()
-    elif cart_item.quantity == 0:
-        db.delete(cart_item)
-        db.commit()
-    else:
-        pass
-    return {"messages":"Product removed from the wishlist successfully!!!"}
+            return {"message":"Product Deleted successfully"}
+        return {"messages":"Product removed from the whishlist successfully!!!"}
+    except Exception as e:
+        return {"message": "Product is not exists in whishlist!!!"}
+
+    
     
 
 
