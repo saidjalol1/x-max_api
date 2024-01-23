@@ -15,7 +15,7 @@ route = APIRouter(
     tags=["Cart routes"]
 )
 
-@route.get("/")
+@route.get("/", response_model=List[CartItemOut])
 async def cart_page(
     api_key: str = Depends(verify_api_key),
     user_token: str = Depends(get_or_create_user_token),
