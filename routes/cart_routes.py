@@ -22,7 +22,10 @@ async def cart_page(
     db : Session = Depends(get_db)
 ):
     cart = db.query(CartItem).options(joinedload(CartItem.item)).filter(CartItem.token==user_token, CartItem.quantity > 0).all()
-    return cart
+    cart_items = {
+        "cart_items": cart
+    }
+    return cart_items
 
 
 @route.post("/add_to_cart/{id}")
