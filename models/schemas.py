@@ -33,6 +33,7 @@ class CreateProduct(BaseModel):
 
 class ProductOut(BaseModel):
     id: int
+    name : str
     price : int
     category_id:int
     amount: int
