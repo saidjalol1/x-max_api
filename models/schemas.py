@@ -55,7 +55,6 @@ class CreateCategory(BaseModel):
 
 class CartItemOut(BaseModel):
     id : int
-    token: str
     quantity : int
     item : ProductOut
 
