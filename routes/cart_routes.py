@@ -75,7 +75,21 @@ async def remove_from_cart(
     except Exception as e:
         return {"message": "Product is not exists in cart!!!"}
     
-    
+
+@route.delete("/delete/{id}")
+async def delete_cart_item(
+    id : int,
+    user_token : str = Depends(get_or_create_user_token),
+    api_key : str = Depends(verify_api_key),
+    db : Session = Depends(get_db)
+):
+    try:
+        cart_item = db.query(CartItem).filter(CartItem.token == user_token, CartItem.id == id).first()
+        db.delete(cart_item)
+        db.commit()
+        return {"messages":"Product deleted from the cart successfully!!!"}
+    except Exception as e:
+        return {"message": "Product is not exists in cart!!!"}
 
 
 
