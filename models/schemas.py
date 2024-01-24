@@ -60,6 +60,5 @@ class CartItemOut(BaseModel):
 
 class WishlistItemOut(BaseModel):
     id : int
-    token: str
     quantity : int
     item : ProductOut
