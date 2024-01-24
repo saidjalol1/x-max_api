@@ -74,7 +74,21 @@ async def remove_from_cart(
         return {"message": "Product is not exists in whishlist!!!"}
 
     
-    
+
+@route.delete("/delete/{id}")
+async def delete_cart_item(
+    id : int,
+    user_token : str = Depends(get_or_create_user_token),
+    api_key : str = Depends(verify_api_key),
+    db : Session = Depends(get_db)
+):
+    try:
+        cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.id == id).first()
+        db.delete(cart_item)
+        db.commit()
+        return {"messages":"Product deleted from the whishlist successfully!!!"}
+    except Exception as e:
+        return {"message": "Product is not exists in whishlist!!!"}
 
 
 
