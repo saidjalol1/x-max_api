@@ -42,7 +42,7 @@ class Product(Base):
 
     category = relationship("Category", back_populates="products")
     cart_items = relationship("CartItem", back_populates="item")
-    # order_item = relationship("OrderItems", back_populates="product")
+    order_item = relationship("OrderItems", back_populates="product")
     wish_list = relationship("WishlistItem", back_populates="item")
 
     images = relationship("ProductImage", back_populates="product")
@@ -79,50 +79,66 @@ class WishlistItem(Base):
         return str(self.id) + "-" + "whishlist"
     
 
-# class Order(Base):
-#     __tablename__ = "orders"
+class Order(Base):
+    __tablename__ = "orders"
 
-#     id = Column(Integer, primary_key=True, index=True)
-#     name = Column(String)
-#     surname = Column(String, nullable=True)
-#     phone = Column(String)
-#     second_phone = Column(String, nullable=True)
-#     location = Column(String, nullable=True)
-#     address = Column(String, nullable=True)
-#     target = Column(String, nullable=True)
-#     date_ordered = Column(DateTime(timezone=True), server_default=func.now())
-#     paymnet_type = Column(String, default="Naqd")
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    surname = Column(String, nullable=True)
+    phone = Column(String)
+    second_phone = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    target = Column(String, nullable=True)
+    date_ordered = Column(DateTime(timezone=True), server_default=func.now())
+    paymnet_type = Column(String, default="Naqd")
 
-#     order_items = relationship("OrderItems", back_populates="order")
+    order_items = relationship("OrderItems", back_populates="order")
 
-#     def __repr__(self):
-#         return str(self.id) + "-" + "order"
+    def __repr__(self):
+        return str(self.id) + "-" + "order"
 
 
-# class OrderItems(Base):
-#     __tablename__ = "order_item"
+class OrderItems(Base):
+    __tablename__ = "order_item"
     
-#     id = Column(Integer, primary_key=True, index=True)
-#     quantity = Column(Integer, default=0)
+    id = Column(Integer, primary_key=True, index=True)
+    quantity = Column(Integer, default=0)
 
-#     product_id = Column(Integer, ForeignKey("products.id"))
-#     order_id = Column(Integer, ForeignKey("orders.id"))
+    product_id = Column(Integer, ForeignKey("products.id"))
+    order_id = Column(Integer, ForeignKey("orders.id"))
 
-#     product = relationship("Product", back_populates="order_item")
-#     order = relationship("Order", back_populates="order_items")
+    product = relationship("Product", back_populates="order_item")
+    order = relationship("Order", back_populates="order_items")
 
-#     def __repr__(self):
-#         return str(self.id) + "-" + "order_item"
+    def __repr__(self):
+        return str(self.id) + "-" + "order_item"
     
     
-# class Expansion(Base):
-#     __tablename__ = "expansions"
+class Expansion(Base):
+    __tablename__ = "expansions"
 
-#     id = Column(Integer, primary_key=True, index=True)
-#     name = Column(String)
-#     amount = Column(Integer)
-#     date = Column(String, nullable=True)
-#     date_ordered = Column(DateTime(timezone=True), server_default=func.now())
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    amount = Column(Integer)
+    date = Column(String, nullable=True)
+    date_ordered = Column(DateTime(timezone=True), server_default=func.now())
+
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True ,index=True)
+    username = Column(String(100))
+    email = Column(String(100), nullable=True)
+    password = Column(String(8))
+    sum_sold = Column(Integer, default=0)
+    number_of_product_sold = Column(Integer, default=0)
+    salary = Column(String, nullable=True)
+    is_superuser = Column(Boolean, default=True)
+    is_seller = Column(Boolean, default=False)
+    is_cashier = Column(Boolean, default=False)
 
 
 
