@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
-from typing import List
+from typing import Optional, List, Union
 
 
 class CategoryOut(BaseModel):
@@ -63,3 +62,6 @@ class WishlistItemOut(BaseModel):
     id : int
     quantity : int
     item : ProductOut
+
+
+    

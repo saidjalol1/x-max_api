@@ -4,8 +4,7 @@ from utils import verify_api_key, get_or_create_user_token
 from config import get_db
 from models import models, schemas
 
-from typing import List, Optional
-
+from typing import List, Optional, Annotated
 
 main_routes = APIRouter(
     prefix="/home",

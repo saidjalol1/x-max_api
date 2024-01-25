@@ -2,7 +2,7 @@ import os
 import secrets
 from dotenv import load_dotenv
 from fastapi import Header, Depends, HTTPException, Request, Response
-
+from typing import Annotated
 
 load_dotenv()
 
@@ -35,4 +35,7 @@ def get_or_create_user_token(request:Request, response: Response = None):
         request.session["user_token"] = token
 
     return user_token
+
+
+
     

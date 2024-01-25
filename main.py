@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.sessions import SessionMiddleware
 
-from routes import main_routes, product_routes, category_routes, category_routes, cart_routes, wishlist
+from routes import main_routes, product_routes, category_routes, category_routes, cart_routes, wishlist, authentication_routes
 
 from config import engine, get_db
 from utils import SECRET_KEY
@@ -37,6 +37,7 @@ app.include_router(product_routes.products)
 app.include_router(category_routes.route)
 app.include_router(cart_routes.route)
 app.include_router(wishlist.route)
+app.include_router(authentication_routes.route)
 
 
 @app.get("/")

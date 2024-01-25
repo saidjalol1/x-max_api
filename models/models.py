@@ -1,7 +1,7 @@
 from config import Base
 from sqlalchemy import Column,Integer, String, ForeignKey, Boolean, Text, Float, DateTime, JSON
 from sqlalchemy.orm import relationship
-
+from sqlalchemy.sql import func
 
 # Cart Models
 
@@ -42,6 +42,7 @@ class Product(Base):
 
     category = relationship("Category", back_populates="products")
     cart_items = relationship("CartItem", back_populates="item")
+    # order_item = relationship("OrderItems", back_populates="product")
     wish_list = relationship("WishlistItem", back_populates="item")
 
     images = relationship("ProductImage", back_populates="product")
@@ -75,7 +76,53 @@ class WishlistItem(Base):
     item = relationship("Product", back_populates="wish_list")
 
     def __repr__(self):
-        return str(self.id) + "-" + "cart_item"
+        return str(self.id) + "-" + "whishlist"
+    
+
+# class Order(Base):
+#     __tablename__ = "orders"
+
+#     id = Column(Integer, primary_key=True, index=True)
+#     name = Column(String)
+#     surname = Column(String, nullable=True)
+#     phone = Column(String)
+#     second_phone = Column(String, nullable=True)
+#     location = Column(String, nullable=True)
+#     address = Column(String, nullable=True)
+#     target = Column(String, nullable=True)
+#     date_ordered = Column(DateTime(timezone=True), server_default=func.now())
+#     paymnet_type = Column(String, default="Naqd")
+
+#     order_items = relationship("OrderItems", back_populates="order")
+
+#     def __repr__(self):
+#         return str(self.id) + "-" + "order"
+
+
+# class OrderItems(Base):
+#     __tablename__ = "order_item"
+    
+#     id = Column(Integer, primary_key=True, index=True)
+#     quantity = Column(Integer, default=0)
+
+#     product_id = Column(Integer, ForeignKey("products.id"))
+#     order_id = Column(Integer, ForeignKey("orders.id"))
+
+#     product = relationship("Product", back_populates="order_item")
+#     order = relationship("Order", back_populates="order_items")
+
+#     def __repr__(self):
+#         return str(self.id) + "-" + "order_item"
+    
+    
+# class Expansion(Base):
+#     __tablename__ = "expansions"
+
+#     id = Column(Integer, primary_key=True, index=True)
+#     name = Column(String)
+#     amount = Column(Integer)
+#     date = Column(String, nullable=True)
+#     date_ordered = Column(DateTime(timezone=True), server_default=func.now())
 
 
 
