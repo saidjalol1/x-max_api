@@ -15,25 +15,28 @@ route = APIRouter(
     tags=["wishlist"]
 )
 
-@route.get("/", response_model=List[WishlistItemOut])
+@route.get("/")
 async def wishlist(
     api_key: str = Depends(verify_api_key),
     user_token: str = Depends(get_or_create_user_token),
     db : Session = Depends(get_db)
 ):
-    cart = db.query(WishlistItem).options(joinedload(WishlistItem.item)).filter(WishlistItem.token==user_token, WishlistItem.quantity > 0).all()
+    cart = db.query(WishlistItem).options(joinedload(WishlistItem.item).joinedload(Product.images)).filter(WishlistItem.token==user_token, WishlistItem.quantity > 0).all()
+    cart_objects = {
+        "wishlist": cart
+    }
     return cart
 
 
-@route.post("/add_to_whishlist/{product_id}")
-async def add_to_cart(
-    id : int,
+@route.post("/add_to_wishlist/{product_id}")
+async def add_to_wishlist(
+    product_id : int,
     user_token : str =Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
         try:
-            cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == id).first()
+            cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == product_id).first()
             cart_item.quantity += 1
             db.commit()
             cart_item = {
@@ -44,7 +47,7 @@ async def add_to_cart(
             new_item = WishlistItem(
                 token = user_token,
                 quantity = 1,
-                item_id = id,
+                item_id = product_id,
             )
             db.add(new_item)
             db.commit()
@@ -57,13 +60,13 @@ async def add_to_cart(
 
 @route.post("/remove_from_whishlist/{product_id}")
 async def remove_from_cart(
-    id : int,
+    product_id : int,
     user_token : str = Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
     try:
-        cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == id).first()
+        cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == product_id).first()
         cart_item.quantity -= 1
         db.commit()
         if cart_item.quantity == 0:
