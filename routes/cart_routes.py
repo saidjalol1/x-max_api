@@ -21,7 +21,7 @@ async def cart_page(
     user_token: str = Depends(get_or_create_user_token),
     db : Session = Depends(get_db)
 ):
-    cart = db.query(CartItem).options(joinedload(CartItem.item)).filter(CartItem.token==user_token, CartItem.quantity > 0).all()
+    cart = db.query(CartItem).options(joinedload(CartItem.item).joinedload(Product.images)).filter(CartItem.token==user_token, CartItem.quantity > 0).all()
     cart_objects = {
         "cart_objects": cart
     }
