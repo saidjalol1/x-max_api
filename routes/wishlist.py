@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends, Header, status
 from sqlalchemy.orm import Session, joinedload
 
 from utils import verify_api_key, get_or_create_user_token
 from config import get_db
 
 from models.models import WishlistItem, Category, Product
-from models.schemas import WishlistItemOut
+from models.schemas import WishlistItemOut, WhishlistItemIn
 
 from typing import List, Optional
 
@@ -23,50 +23,54 @@ async def wishlist(
 ):
     cart = db.query(WishlistItem).options(joinedload(WishlistItem.item).joinedload(Product.images)).filter(WishlistItem.token==user_token, WishlistItem.quantity > 0).all()
     cart_objects = {
-        "wishlist": cart
+        "whishlist_item": cart
     }
-    return cart
+    return cart_objects
 
 
-@route.post("/add_to_wishlist/{product_id}")
+@route.post("/add_to_wishlist/")    
 async def add_to_wishlist(
-    product_id : int,
-    user_token : str =Depends(get_or_create_user_token),
-    api_key : str = Depends(verify_api_key),
-    db : Session = Depends(get_db)
-):
-        try:
-            cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == product_id).first()
-            cart_item.quantity += 1
-            db.commit()
-            cart_item = {
-                "item": cart_item
-            }
-            return cart_item
-        except Exception as e:
-            new_item = WishlistItem(
-                token = user_token,
-                quantity = 1,
-                item_id = product_id,
-            )
-            db.add(new_item)
-            db.commit()
-            db.refresh(new_item)
-            item = {
-                "item": new_item
-            }
-            return item
-
-
-@route.post("/remove_from_whishlist/{product_id}")
-async def remove_from_cart(
-    product_id : int,
+    whishlist_item : WhishlistItemIn,
     user_token : str = Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
     try:
-        cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == product_id).first()
+        existing_whishlist_item = db.query(WishlistItem).filter(
+            WishlistItem.token == user_token, WishlistItem.item_id == whishlist_item.item_id
+        ).first()
+
+        if existing_whishlist_item:
+            existing_whishlist_item.quantity += whishlist_item.quantity
+            db.commit()
+            db.refresh(existing_whishlist_item)
+            return {"cart_item": existing_whishlist_item}
+        else:
+            new_item = WhishlistItemIn(
+                token = user_token,
+                quantity = whishlist_item.quantity,
+                item_id = whishlist_item.item_id,
+                )
+            db.add(new_item)
+            db.commit()
+            db.refresh(new_item)
+            return {"cart_item" : new_item}
+    except Exception as e:
+        raise HTTPException(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during the operation.",
+        )
+
+
+@route.post("/remove_from_wishlist/")
+async def remove_from_cart(
+    wishlist_item : WhishlistItemIn,
+    user_token : str = Depends(get_or_create_user_token),
+    api_key : str = Depends(verify_api_key),
+    db : Session = Depends(get_db)
+):
+    try:
+        cart_item = db.query(WishlistItem).filter(WishlistItem.token == user_token, WishlistItem.item_id == wishlist_item.item_id).first()
         cart_item.quantity -= 1
         db.commit()
         if cart_item.quantity == 0:

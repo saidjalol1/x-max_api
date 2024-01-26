@@ -67,5 +67,9 @@ class CartItemIn(BaseModel):
     item_id : int
     quantity : int
 
+class WhishlistItemIn(BaseModel):
+    item_id : int
+    quantity : int
+
 
     
