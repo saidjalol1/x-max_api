@@ -31,7 +31,7 @@ async def cart_page(
 @route.post("/add_to_cart/{id}")
 async def add_to_cart(
     id : int,
-    user_token : str =Depends(get_or_create_user_token),
+    user_token : str = Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
