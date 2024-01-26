@@ -70,7 +70,6 @@ class WishlistItem(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     token = Column(String(16))
-    quantity = Column(Integer, default=0)
     item_id = Column(Integer, ForeignKey("products.id"))
 
     item = relationship("Product", back_populates="wish_list")
