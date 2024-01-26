@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends, Header, status
 from sqlalchemy.orm import Session, joinedload
 
 from utils import verify_api_key, get_or_create_user_token
 from config import get_db
 
 from models.models import CartItem, Category, Product
-from models.schemas import CartItemOut
+from models.schemas import CartItemOut, CartItemIn
 
 from typing import List
 
@@ -28,34 +28,39 @@ async def cart_page(
     return cart_objects
 
 
-@route.post("/add_to_cart/{id}")
+@route.post("/add_to_cart/")
 async def add_to_cart(
-    id : int,
+    cart_item : CartItemIn,
     user_token : str = Depends(get_or_create_user_token),
     api_key : str = Depends(verify_api_key),
     db : Session = Depends(get_db)
 ):
     try:
-        cart_item = db.query(CartItem).filter(CartItem.token == user_token, CartItem.item_id == id).first()
-        cart_item.quantity += 1
-        db.commit()
-        cart_item = {
-            "cart_item": cart_item
-        }
-        return cart_item
+        existing_cart_item = db.query(CartItem).filter(
+            CartItem.token == user_token, CartItem.item_id == cart_item.item_id
+        ).first()
+
+        if existing_cart_item:
+            existing_cart_item.quantity = cart_item.quantity
+            db.commit()
+            db.refresh(existing_cart_item)
+            return {"cart_item": existing_cart_item}
+        else:
+            new_item = CartItem(
+                token = user_token,
+                quantity = cart_item.quantity,
+                item_id = cart_item.item_id,
+                )
+            db.add(new_item)
+            db.commit()
+            db.refresh(new_item)
+            return {"cart_item" : new_item}
     except Exception as e:
-        new_item = CartItem(
-            token = user_token,
-            quantity = 1,
-            item_id = id,
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during the operation.",
         )
-        db.add(new_item)
-        db.commit()
-        db.refresh(new_item)
-        item = {
-            "item" : new_item
-        }
-        return item
+       
 
     
 

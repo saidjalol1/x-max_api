@@ -63,5 +63,9 @@ class WishlistItemOut(BaseModel):
     quantity : int
     item : ProductOut
 
+class CartItemIn(BaseModel):
+    item_id : int
+    quantity : int
+
 
     
