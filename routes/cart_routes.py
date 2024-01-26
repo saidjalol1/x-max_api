@@ -41,7 +41,7 @@ async def add_to_cart(
         ).first()
 
         if existing_cart_item:
-            existing_cart_item.quantity = cart_item.quantity
+            existing_cart_item.quantity += cart_item.quantity
             db.commit()
             db.refresh(existing_cart_item)
             return {"cart_item": existing_cart_item}
@@ -65,23 +65,29 @@ async def add_to_cart(
     
 
 
-# @route.post("/remove_from_cart/")
-# async def remove_from_cart(
-#     cart_item : CartItemIn,
-#     user_token : str = Depends(get_or_create_user_token),
-#     api_key : str = Depends(verify_api_key),
-#     db : Session = Depends(get_db)
-# ):
-#     try:
-#         cart_item = db.query(CartItem).filter(CartItem.token == user_token, CartItem.item_id == id).first()
-#         cart_item.quantity -= 1
-#         db.commit()
-#         if cart_item.quantity == 0:
-#             db.delete(cart_item)
-#             return {"message":"Product Deleted successfully"}
-#         return {"messages":"Product removed from the cart successfully!!!"}
-#     except Exception as e:
-#         return {"message": "Product is not exists in cart!!!"}
+@route.post("/remove_from_cart/")
+async def remove_from_cart(
+    cart_item : CartItemIn,
+    user_token : str = Depends(get_or_create_user_token),
+    api_key : str = Depends(verify_api_key),
+    db : Session = Depends(get_db)
+):
+    try:
+        existing_cart_item = db.query(CartItem).filter(
+            CartItem.token == user_token, CartItem.item_id == cart_item.item_id
+        ).first()
+        if existing_cart_item and existing_cart_item.quantity > 0:
+            existing_cart_item.quantity -= cart_item.quantity
+            db.commit()
+            db.refresh(existing_cart_item)
+            if existing_cart_item.quantity == 0:
+                db.delete(existing_cart_item)
+                db.commit()
+                return {"messages":"Product deleted from the cart successfully!!!"}
+        else:
+            return {"cart_item":" Cart item doesnot exist"}
+    except Exception as e:
+        return {"message": "Product is not exists in cart!!!"}
     
 
 @route.delete("/delete/{id}")
