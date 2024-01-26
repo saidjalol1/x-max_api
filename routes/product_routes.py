@@ -16,7 +16,7 @@ products = APIRouter(
 )
 
 
-url = "https://9db3f01f388a33.lhr.life/images/"
+url = "https://https://xmax.onrender.com/images/"
 
 @products.post("/add")
 async def create_product(
@@ -42,7 +42,7 @@ async def create_product(
     db.refresh(db_product)
     for i in images:
         counter = 0
-        with open(f"product_images/{i.name}", "wb") as image_file:
+        with open(f"product_images/{i.filename}", "wb") as image_file:
             image_file.write(await i.read())
         db_image = ProductImage(filename = url + i.filename, product_id=db_product.id)
         db.add(db_image)

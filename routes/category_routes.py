@@ -18,7 +18,7 @@ route = APIRouter(
 )
 
 
-@route.post("/add", response_model= CategoryOut)
+@route.post("/add")
 async def create_category(
     category : CreateCategory,
     api_key: str = Depends(verify_api_key),
